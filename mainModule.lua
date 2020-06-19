@@ -30,16 +30,14 @@ local round = require("Module:Round").round
 
 local lang = mw.getContentLanguage() -- Number format helper function.
 
-local test
-
-local function fnum(x) -- Formats numbers in the default language.
-	if type(x) == 'number' then
+local function fnum(x) -- Formats numbers in the default language, means it will add comma separators 
+	if type(x) == "number" then
 		return lang:formatNum(x)
 	end
-	return nil -- You tried to format a number and it wasn't a number, return nil
+	return nil 
 end
 
-local function artefactXP(artefactName)  --returns restoration xp of an artefact from a specific hotspot
+local function artefactXP(artefactName)  -- returns restoration xp of an artefact from a specific hotspot
   for i,v in ipairs(data.artefacts) do
     for j,k in pairs(v["mats"]) do
       if j == artefactName then
@@ -50,7 +48,7 @@ local function artefactXP(artefactName)  --returns restoration xp of an artefact
 end
 
 
-local function FindProfits(h,hotspot)  --returns the total value of all materials gained from one specific hotspot
+local function FindProfits(h,hotspot)  -- returns the total value of all materials gained from one specific hotspot
 	local numMaterialsTable = {}
 	local totalprofits = 0
 	local numMaterials = 0
@@ -73,10 +71,8 @@ local function FindProfits(h,hotspot)  --returns the total value of all material
 	return totalprofits
 end
 
-local function GetNumArtefactMaterials(havg,r)
+local function GetNumArtefactMaterials(havg,r) -- Returns chance per hit to gain each material in a specific hotspot.
 	local numMaterialsTable = {}
-	-- take MPH divide by each materials' chance.
-	-- Take MPH
 
 	for i,v  in pairs (r.materials) do
 		local chance = v[2]
@@ -420,10 +416,6 @@ function p.main(frame)
 		
 		if tlvl +5 >= r.level and alevel - difference <= r.level then	-- Remove excavations that cannot be done at the selected arch level
 			
-			
-					
-			
-			
 			local Tminxp = 0 -- Total min xp
 			local Tavgxp = 0 -- Total avg xp
 			local Tmaxxp = 0 -- Totalmaxxp
@@ -433,11 +425,9 @@ function p.main(frame)
 			local tRestoreCost
 				if args.method == 'AFK' or 'Time Sprite Medium Intensity' or 'Time Sprite High Intensity' then
 					
-					
-					
-					local d = r.failxp or 2 --finding the value of failure xp
-					local a = (r.successxp or d*10)   --xp for successfully getting a material
-					local b = 7 * a  --xp for finding an artefact
+					local d = r.failxp or 2 -- Finding the value of failure xp
+					local a = (r.successxp or d*10)   -- xp for successfully getting a material
+					local b = r.artefactxp or 100 * a  --xp for finding an artefact
 					local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
 					
 					local e = r.hitpoints  --returns the hitpoints of one hotspot
@@ -497,7 +487,6 @@ function p.main(frame)
 				
 				local materialsList = {}
 				local artefactsList = {}
-				local testVar = nil
 				local numMaterials = 0
 				local numArtefacts = 0
 				
@@ -513,7 +502,6 @@ function p.main(frame)
 					local endValue = ""
 					
 				
-					testVar = (tostring(#r.materials))
 					if i == numMaterials then
 						endValue = ""	
 					end
@@ -571,7 +559,6 @@ function p.main(frame)
 					["GP/H"] = Tprofit,
 					["GP/XP"] = Tprofit / Tavgxp,	
 					["HoursToTarget"] = remaining / Tavgxp,
-					["Test"] = statsForNerds,
 				} 
 			
 			-----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -658,3 +645,4 @@ end
 
 
 return p
+
