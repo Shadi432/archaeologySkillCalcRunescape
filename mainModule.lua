@@ -88,38 +88,37 @@ end
 
 
 local function SoilPrice(havg,r)  --returns total profit of all soil collected, checks soil type from specific hotspot
-  soilNum = havg * 0.14
-  return gemw.price(r.soil) * soilNum
+	soilNum = havg * 0.14
+	return gemw.price(r.soil) * soilNum
  end
 
-local avgRestore = 0
 local function TotalRestoringPrice(havg,r,precision) --returns avg price of restoring one artefact from a specific hotspot
-  local numArtefacts = 0
-  local artefactsToRestore = r.artefacts
-  local costTable = {}
-  for l,m in ipairs(artefactsToRestore) do
-    for i,v in ipairs(data.artefacts) do
-    	if string.find(m[1], v.name, 1, true) then
-        	for j,k in pairs (v.mats) do
-        		if not string.match(j,"damaged") and not string.match(j,"Phoenix") and not string.match(j,"mushroom ink") then
-        			costTable[#costTable + 1] = k * gemw.price(j)
+	local numArtefacts = 0
+	local artefactsToRestore = r.artefacts
+	local costTable = {}
+	for l,m in ipairs(artefactsToRestore) do
+		for i,v in ipairs(data.artefacts) do
+			if string.find(m[1], v.name, 1, true) then
+				for j,k in pairs (v.mats) do
+					if not string.match(j,"damaged") and not string.match(j,"Phoenix") and not string.match(j,"mushroom ink") then
+						costTable[#costTable + 1] = k * gemw.price(j)
+					end
 				end
 			end
-        end
+		end
 	end
-  end
-  
-  for i,v in ipairs (r.artefacts) do
+
+	for i,v in ipairs (r.artefacts) do
 		numArtefacts = numArtefacts + 1
 	end
-  
-  local sumSingularPrice = 0
-  for i=1, #costTable do
-    sumSingularPrice = sumSingularPrice + costTable[i]
-  end
-  
-  avgRestore = sumSingularPrice / numArtefacts
-  return avgRestore
+
+	local sumSingularPrice = 0
+	for i=1, #costTable do
+		sumSingularPrice = sumSingularPrice + costTable[i]
+	end
+
+	avgRestore = sumSingularPrice / numArtefacts
+	return avgRestore
 end
 
 
@@ -258,10 +257,11 @@ function p.main(frame)
 	local hide = args.hide or 1
 	local difference = 120
 	local statsForNerds = tonumber(args.statsfornerds)
+	local avgRestore = 0
 	
-		if tonumber(hide) == 1 then
-			difference = 10
-		end
+	if tonumber(hide) == 1 then
+		difference = 10
+	end
 	
 	if portable ~= "None" then
 		if portable == "Pale energy" then
