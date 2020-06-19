@@ -555,7 +555,6 @@ function p.main(frame)
 				["HoursToTarget"] = remaining / Tavgxp,
 			} 
 			
-			-----------------------------------------------------------------------------------------------------------------------------------------------------------
 		end		
 	end
 	
@@ -626,6 +625,12 @@ function p.main(frame)
 	
 	
 	return tostring(msg)..tostring(t) -- Final return of this function, should tell them the amount of xp they need to get from certain level to certain level.
+end
+
+function p.lightCalculations(frame) -- Take these parameters and output calculation values.
+	local args = frame:getParent() -- Get parameters passed to the template.
+	
+	-- return xpToReachLvl, timeToReachLvl (time in hours)
 end
 
 
