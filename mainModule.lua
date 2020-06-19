@@ -89,8 +89,6 @@ local function SoilPrice(havg,r)  --returns total profit of all soil collected, 
 	return gemw.price(r.soil) * soilNum
 end
 
-local avgRestore = 0
-
 local function TotalRestoringPrice(havg,r,precision) --returns avg price of restoring one artefact from a specific hotspot
 	local numArtefacts = 0
 	local artefactsToRestore = r.artefacts
@@ -200,6 +198,7 @@ function p.main(frame)
 	local outfit = data.outfit_m[outfittmp]						-- Outfit selected
 	local pieces = data.pieces[args.pieces]
 	local fullmasteroutfit = 0
+	local avgRestore = 0
 	
 	if tonumber(pieces) == 1.06 and outfittmp == "Master Archaeologists Outfit" then
 		fullmasteroutfit = 1
@@ -366,13 +365,13 @@ function p.main(frame)
 	
 	if tonumber(tea) == 1 and fullmasteroutfit == 1 then
 		teaused = chronoteprice * 2 * 2000  --the *3 is 3 used to get an hour buff.
-		elseif tonumber(tea) == 1 then
+	elseif tonumber(tea) == 1 then
 		teaused = chronoteprice * 3 * 2000
 	end
 	
 	if tonumber(monocle) == 1 and fullmasteroutfit == 1 then
 		monocleused = chronoteprice * 2 * 2000  --the *3 is 3 used to get an hour buff.
-		elseif tonumber(monocle) == 1 then
+	elseif tonumber(monocle) == 1 then
 		monocleused = chronoteprice * 3 * 2000
 	end
 	
@@ -387,7 +386,7 @@ function p.main(frame)
 	local t = mw.html.create('table')	-- Creates an mw.html object for us, creates a table html element.
 	t:addClass('wikitable sortable') -- Adding the wikitable sortable class means I can sort the entire class
 	
-	if true then -- if has_target then
+	if has_target then -- if has_target then
 		local r = t:tag('tr') :addClass(row_classes) -- Creates new row in the table 
 		
 		r:tag('th')  :wikitext('Level')		:attr('rowspan', 2) :done()
