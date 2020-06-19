@@ -38,37 +38,38 @@ local function fnum(x) -- Formats numbers in the default language, means it will
 end
 
 local function artefactXP(artefactName)  -- returns restoration xp of an artefact from a specific hotspot
-  for i,v in ipairs(data.artefacts) do
-    for j,k in pairs(v["mats"]) do
-      if j == artefactName then
-        return v["xp"]
-      end
-    end
-  end
+	for i,v in ipairs(data.artefacts) do
+		for j,k in pairs(v["mats"]) do
+			if j == artefactName then
+				return v["xp"]
+			end
+		end
+	end
 end
 
 
-local function FindProfits(h,hotspot)  -- returns the total value of all materials gained from one specific hotspot
+local function FindProfits(h,hotspot)  -- returns the average value of all materials gained from a hotspot.
 	local numMaterialsTable = {}
-	local totalprofits = 0
+	local totalProfits = 0
 	local numMaterials = 0
 
 	
 	for i,v in ipairs (hotspot.materials) do
 		local chance = v[2]
-		
 		local materialsGained = h * (chance/10000)
+		
 		numMaterialsTable[v[1]] = materialsGained
 		numMaterials = numMaterials + 1
 	end
 
   
 	for i,v in pairs(numMaterialsTable) do
-		totalprofits = totalprofits + (gemw.price(i))
+		totalProfits = totalProfits + (gemw.price(i))
 	end
-	totalprofits = totalprofits / numMaterials
 	
-	return totalprofits
+	totalProfits = totalProfits / numMaterials -- Gets the average profit from a hotspot in an hour
+	
+	return totalProfits
 end
 
 local function GetNumArtefactMaterials(havg,r) -- Returns chance per hit to gain each material in a specific hotspot.
@@ -84,51 +85,54 @@ end
 
 
 local function SoilPrice(havg,r)  --returns total profit of all soil collected, checks soil type from specific hotspot
-  soilNum = havg * 0.14
-  return gemw.price(r.soil) * soilNum
- end
+	soilNum = havg * 0.14
+	return gemw.price(r.soil) * soilNum
+end
 
 local avgRestore = 0
+
 local function TotalRestoringPrice(havg,r,precision) --returns avg price of restoring one artefact from a specific hotspot
-  local numArtefacts = 0
-  local artefactsToRestore = r.artefacts
-  local costTable = {}
-  for l,m in ipairs(artefactsToRestore) do
-    for i,v in ipairs(data.artefacts) do
-    	if string.find(m[1], v.name, 1, true) then
-        	for j,k in pairs (v.mats) do
-        		if not string.match(j,"damaged") and not string.match(j,"Phoenix") and not string.match(j,"mushroom ink") then
-        			costTable[#costTable + 1] = k * gemw.price(j)
+	local numArtefacts = 0
+	local artefactsToRestore = r.artefacts
+	local costTable = {}
+	
+	for l,m in ipairs(artefactsToRestore) do
+		for i,v in ipairs(data.artefacts) do
+			if string.find(m[1], v.name, 1, true) then
+				for j,k in pairs (v.mats) do
+					if not string.match(j,"damaged") and not string.match(j,"Phoenix") and not string.match(j,"mushroom ink") then
+						costTable[#costTable + 1] = k * gemw.price(j)
+					end
 				end
 			end
-        end
+		end
 	end
-  end
-  
-  for i,v in ipairs (r.artefacts) do
+
+	for i,v in ipairs (r.artefacts) do
 		numArtefacts = numArtefacts + 1
 	end
-  
-  local sumSingularPrice = 0
-  for i=1, #costTable do
-    sumSingularPrice = sumSingularPrice + costTable[i]
-  end
-  
-  avgRestore = sumSingularPrice / numArtefacts
-  return avgRestore
+
+	local sumSingularPrice = 0
+	
+	for i=1, #costTable do
+		sumSingularPrice = sumSingularPrice + costTable[i]
+	end
+
+	avgRestore = sumSingularPrice / numArtefacts
+	return avgRestore
 end
 
 
-local function GetChronoteValue(hotspotName) -- index; gets chronote value of artefacts from a specific hotspot
-  local artefactName = data.hotspots[hotspotName].artefacts[1][1]
-  
-  for i,v in ipairs (data.artefacts) do
-    for j,k in pairs (v["mats"]) do
-      if j == artefactName then
-        return v["chronotes"]
-      end
-    end
-  end
+local function GetChronoteValue(hotspotName) -- gets chronote value of artefacts from a specific hotspot
+	local artefactName = data.hotspots[hotspotName].artefacts[1][1]
+
+	for i,v in ipairs (data.artefacts) do
+		for j,k in pairs (v["mats"]) do
+			if j == artefactName then
+				return v["chronotes"]
+			end
+		end
+	end
 end
 
 
@@ -196,9 +200,11 @@ function p.main(frame)
 	local outfit = data.outfit_m[outfittmp]						-- Outfit selected
 	local pieces = data.pieces[args.pieces]
 	local fullmasteroutfit = 0
-		if tonumber(pieces) == 1.06 and outfittmp == "Master Archaeologists Outfit" then
-			fullmasteroutfit = 1
-		end
+	
+	if tonumber(pieces) == 1.06 and outfittmp == "Master Archaeologists Outfit" then
+		fullmasteroutfit = 1
+	end
+	
 	local lvl20 = tonumber(args.lvl20) or 1						-- Mattock item level 20
 	local upgrade = data.upgrade[args.upgrade]
 	local honed = data.honed[args.honed]  or 0				-- Honed perk
