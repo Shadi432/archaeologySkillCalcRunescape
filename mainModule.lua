@@ -627,10 +627,25 @@ function p.main(frame)
 	return tostring(msg)..tostring(t) -- Final return of this function, should tell them the amount of xp they need to get from certain level to certain level.
 end
 
+-- [LIGHT CALCULATIONS FUNCTION BELOW] --
+-- Parameters (pass these to the template you're invoking the function from, also make sure to name them in the same way, case-sensitive)
+-- mattock (string) in the form of a mattock name from the indexes in the Archaeology data module
+-- method (string) "AFK" or "Medium Intensity" or "High Intensity"
+-- hotspotName (string) Should be the same as the hotspot name in the archaeology data module
+
 function p.lightCalculations(frame) -- Take these parameters and output calculation values.
 	local args = frame:getParent() -- Get parameters passed to the template.
+	local mattock = args.mattock or "None"
+	local method = args.method
+	local hotspotName = args.hotspotName or nil
 	
-	-- return xpToReachLvl, timeToReachLvl (time in hours)
+	if hotspotName then
+	
+	else
+		return ("This will not work, your hotspotName isn't provided.")
+	end
+	
+	return xpToReachLvl, timeToReachLvl (time in hours)
 end
 
 
