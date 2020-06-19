@@ -40,13 +40,13 @@ local function fnum(x) -- Formats numbers in the default language.
 end
 
 local function artefactXP(artefactName)  --returns restoration xp of an artefact from a specific hotspot
-  for i,v in ipairs(data.artefacts) do
-    for j,k in pairs(v["mats"]) do
-      if j == artefactName then
-        return v["xp"]
-      end
-    end
-  end
+	for i,v in ipairs(data.artefacts) do
+		for j,k in pairs(v["mats"]) do
+			if j == artefactName then
+				return v["xp"]
+			end
+		end
+	end
 end
 
 
