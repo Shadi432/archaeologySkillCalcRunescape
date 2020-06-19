@@ -1,6 +1,5 @@
 --A collaborative project done by Shadi432 and Sethboi.
 --[[
-
 ⠄⠄⠄⠄⠄⠄⣀⣀⣀⣤⣶⣿⣿⣶⣶⣶⣤⣄⣠⣴⣶⣿⣿⣿⣿⣶⣦⣄⠄⠄
 ⠄⠄⣠⣴⣾⣿⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦
 ⢠⠾⣋⣭⣄⡀⠄⠄⠈⠙⠻⣿⣿⡿⠛⠋⠉⠉⠉⠙⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿
@@ -428,8 +427,8 @@ function p.main(frame)
 			
 			if args.method == 'AFK' or 'Time Sprite Medium Intensity' or 'Time Sprite High Intensity' then
 
-				local d = r.failxp or 1*10^(.0000965(alevel^2))-- Finding the value of failure xp
-				local a = (r.successxp or d*9.5)   -- xp for successfully getting a material
+				local d = r.failxp or 1*10^(0.0000965*(alevel^2))-- Finding the value of failure xp
+				local a = (r.successxp or d*9.3)   -- xp for successfully getting a material
 				local b = r.artefactxp or 100 * d  --xp for finding an artefact
 				local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
 
@@ -639,4 +638,3 @@ end
 
 
 return p
-
