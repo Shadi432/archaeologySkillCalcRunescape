@@ -30,14 +30,14 @@ local round = require("Module:Round").round
 local lang = mw.getContentLanguage() -- Number format helper function.
 
 local function fnum(x) -- Formats numbers in the default language, means it will add comma separators 
-	if type(x) == "number" then
-		return lang:formatNum(x)
-	end
-	return nil 
+  if type(x) == "number" then
+    return lang:formatNum(x)
+  end
+  return nil 
 end
 
-local function artefactXP(artefactName)  -- returns restoration xp of an artefact from a specific hotspot
-	for i,v in ipairs(data.artefacts) do
+local function artefactXP(artefactName)  --returns restoration xp of an artefact from a specific hotspot
+  for i,v in ipairs(data.artefacts) do
 		for j,k in pairs(v["mats"]) do
 			if j == artefactName then
 				return v["xp"]
@@ -84,16 +84,15 @@ end
 
 
 local function SoilPrice(havg,r)  --returns total profit of all soil collected, checks soil type from specific hotspot
-	soilNum = havg * 0.14
-	return gemw.price(r.soil) * soilNum
+  soilNum = havg * 0.14
+  return gemw.price(r.soil) * soilNum
 end
 
 local function TotalRestoringPrice(havg,r,precision) --returns avg price of restoring one artefact from a specific hotspot
 	local numArtefacts = 0
 	local artefactsToRestore = r.artefacts
 	local costTable = {}
-	
-	for l,m in ipairs(artefactsToRestore) do
+  for l,m in ipairs(artefactsToRestore) do
 		for i,v in ipairs(data.artefacts) do
 			if string.find(m[1], v.name, 1, true) then
 				for j,k in pairs (v.mats) do
@@ -110,7 +109,7 @@ local function TotalRestoringPrice(havg,r,precision) --returns avg price of rest
 	end
 
 	local sumSingularPrice = 0
-	
+
 	for i=1, #costTable do
 		sumSingularPrice = sumSingularPrice + costTable[i]
 	end
@@ -258,7 +257,6 @@ function p.main(frame)
 	local statsForNerds = tonumber(args.statsfornerds)
 	local hide = args.hide or 1
 	local difference = 120
-	
 	if tonumber(hide) == 1 then 
 		difference = 10
 	end
@@ -614,12 +612,6 @@ function p.main(frame)
 		end
 		row:tag("td")	:wikitext(coins(string.format("%.2f", ((v["GP/XP"] * 10 + 0.5) / 10)),'coins'))	:css("text-align", "center")	:done()
 		:tag("td")	:wikitext("[[File:" .. "Hourglass".. ".png|" .. "Hourglass" .. "|20x20px|link=" .. "Hourglass" .. "]]"  .. " " .. string.format("%.0f", v["HoursToTarget"] * 10 + 0.5) / 10)	:css("text-align", "center") :css("table-layout", "fixed")	:done()
-		--[[local nerdColumn =--]]
-	--[[	if statsForNerds == 1 then
-			nerdColumn	:css("visibility", "collapse")
-		else 
-			nerdColumn :css("visibility", "visible")
-		end--]]
 	end
 	
 
