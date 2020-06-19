@@ -136,7 +136,7 @@ local function GetChronoteValue(hotspotName) -- gets chronote value of artefacts
 end
 
 
-local function getMattockName(t, mattockLevel, mattockAugmentable)
+local function getMattockName(mattockTable, mattockLevel, mattockAugmentable) -- Returns mattock name based on parameters given
 	for k,v in pairs(t) do
 		if v.Level == mattockLevel and v.Augmentable == mattockAugmentable then
 			return k
@@ -145,7 +145,7 @@ local function getMattockName(t, mattockLevel, mattockAugmentable)
 	return nil
 end
 
-function remainingExp(curLvl, curXP, tgtLvl, tgtXP)
+function remainingExp(curLvl, curXP, tgtLvl, tgtXP) -- Gets remaining xp to a certain lvl and xp goal.
 	local remaining
 
 	if curLvl > 120 and curXP == 1 then
@@ -257,29 +257,29 @@ function p.main(frame)
 		if tonumber(skillcape) == 1 then
 			spritesuccesschance = .06978
 		end
+	local statsForNerds = tonumber(args.statsfornerds)
 	local hide = args.hide or 1
 	local difference = 120
-	local statsForNerds = tonumber(args.statsfornerds)
 	
-		if tonumber(hide) == 1 then
-			difference = 10
-		end
+	if tonumber(hide) == 1 then 
+		difference = 10
+	end
 	
 	if portable ~= "None" then
 		if portable == "Pale energy" then
-		portablePrice = (30*gemw.price(portable) + gemw.price("Sapphire necklace"))/5
+			portablePrice = (30*gemw.price(portable) + gemw.price("Sapphire necklace"))/5
 		elseif portable == "Bright energy" then
-		portablePrice = (35*gemw.price(portable) + gemw.price("Sapphire necklace"))/10
+			portablePrice = (35*gemw.price(portable) + gemw.price("Sapphire necklace"))/10
 		elseif portable == "Sparkling energy" then
-		portablePrice = (40*gemw.price(portable) + gemw.price("Emerald necklace"))/15
+			portablePrice = (40*gemw.price(portable) + gemw.price("Emerald necklace"))/15
 		elseif portable == "Vibrant energy" then
-		portablePrice = (45*gemw.price(portable) + gemw.price("Emerald necklace"))/20
+			portablePrice = (45*gemw.price(portable) + gemw.price("Emerald necklace"))/20
 		elseif portable == "Radiant energy" then
-		portablePrice = (60*gemw.price(portable) + gemw.price("Ruby necklace"))/25
+			portablePrice = (60*gemw.price(portable) + gemw.price("Ruby necklace"))/25
 		elseif portable == "Incandescent energy" then
-		portablePrice = (80*gemw.price(portable) + gemw.price("Diamond necklace"))/30
+			portablePrice = (80*gemw.price(portable) + gemw.price("Diamond necklace"))/30
 		elseif portable == "Magic notepaper" then
-		portablePrice = gemw.price(portable) 
+			portablePrice = gemw.price(portable) 
 		end
 	end
 	
@@ -305,14 +305,14 @@ function p.main(frame)
 	if remaining > 0 then has_target = true end					-- Has target true if remaing xp > 0
 	
 	local spriteprecision = (19 + (crit_bonus))/20
-		if skillcape == 1 then
-			spriteprecision = (13.33 + (crit_bonus))/14
-		end
+	if skillcape == 1 then
+		spriteprecision = (13.33 + (crit_bonus))/14
+	end
 	
 	local spritexpboost = 1
-		if methodtmp == "Time Sprite Medium Intensity" or "Time Sprite High Intensity" then
-			spritexpboost = 1.2
-		end
+	if methodtmp == "Time Sprite Medium Intensity" or "Time Sprite High Intensity" then
+		spritexpboost = 1.2
+	end
 										--jk. it is.
 	if methodtmp == "AFK" then -- Getting their precision values accurate based on their method and equips
 		if fullmasteroutfit == 1 and tonumber(monocle) == 1 then
@@ -381,7 +381,7 @@ function p.main(frame)
 	end
 
 	if outfit.gmo == 1 then xp_boosts = xp_boosts + pieces end -- If the selected outfit applies the archaeology outfit bonus then add it to xp boosts.
--- Quick note: I will be using group1 as it ony has the xp% increase. Group2 (master outfit) will be included in later in the module.
+	-- Quick note: I will be using group1 as it ony has the xp% increase. Group2 (master outfit) will be included in later in the module.
 	
 
 	local t = mw.html.create('table')	-- Creates an mw.html object for us, creates a table html element.
@@ -417,9 +417,6 @@ function p.main(frame)
 	end
 	
 	for index, r in pairs(data.hotspots) do -- For every hotspot
-		
-			
-		
 		if tlvl +5 >= r.level and alevel - difference <= r.level then	-- Remove excavations that cannot be done at the selected arch level
 			
 			local Tminxp = 0 -- Total min xp
@@ -429,149 +426,141 @@ function p.main(frame)
 			local mValue
 			local artefactNum = 0
 			local tRestoreCost
-				if args.method == 'AFK' or 'Time Sprite Medium Intensity' or 'Time Sprite High Intensity' then
-					
-					local d = r.failxp or 2 -- Finding the value of failure xp
-					local a = (r.successxp or d*10)   -- xp for successfully getting a material
-					local b = r.artefactxp or 100 * d  --xp for finding an artefact
-					local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
-					
-					local e = r.hitpoints  --returns the hitpoints of one hotspot
-					local g = r.artefacts  --returns list of artefacts from one hotspot
-					local ggained = waterfiendchance * (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
-					local sp = SoilPrice(havg,r)  --gets average profits for collecting soil
-						if tonumber(autoscreener) == 1 then
-							sp = 0
-						end
-					local mph = GetNumArtefactMaterials(havg,r)
-					local chronoteX = GetChronoteValue(index)  --Gets average chronote value of one artefact from one hotspot
-					local totalPrice = TotalRestoringPrice(havg, r, precision)  --average price for restoring one artefact
-					local x = ggained * (totalPrice)  --calculating the average cost of all materials required for restoring artefacdts
-					local i = ggained * b * spritexpboost --i stands for total xp gained from finding artefacts
-				    if tonumber(tea) > 0 then
-				        i = i * 1.5
-				    end
-					local j = ggained * c --j stands for total xp gained from restoring artefacts
-					local f = havg * s  --f stands for total raw materials gained, before fiend and furnace apply. drop an f in the chat
-					local q = ((n-1)+1)*f*a*spritexpboost  --q stands for total xp for finding mats with + without furnace perk. no furnace perk, remember n=1. cancels.
-					    if tonumber(tea) > 0 then
-					        q = q * 1.5
-					    end
-					local l = havg * z * d * spritexpboost --l stands for total failure xp. make sense? get that L? hahahaha... good one Pog
-					    if tonumber(tea) > 0 then
-					        l = l * 1.5
-					    end
-					    
-					local mp = FindProfits(havg,r) --gets average profits for collecting materials
-					    
-					    
-					    
-					    
-					    
-					    --    Total xp and gp calculation
-					    
-					    
-					    
-					    
-					local MAFKavg = l + q + j + i  --M means raw total xp/h without xp boosts. everything that follows the variable is logical.
-					local TAFKavg = MAFKavg * gmo  --T means total xp/h including boosts.
-					if skillchompa.Level>mattock.Level then
-						TAFKavg = MAFKavg * gmo * skillchompa.Boost
-					end
-				
-					
-					local AFKProfit = ((1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f))*mp + (ggained * chronoteX) - chargeprice  + sp -  x   - (portablePrice*(1-(n-1))*f) - teaused - monocleused - (2000 * skillchompaprice) - waterfiendprice --TOTAL profit/loss calculation for the afk method!!! surprise surprise, arch makes you lose money. :P
-					mphValue = mph
-					Tavgxp = TAFKavg
-					Tprofit = AFKProfit
-					mValue = (1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f)
-					artefactNum = ggained
-					tRestoreCost = totalPrice
-					
-					testingg = mphValue
+			
+			if args.method == 'AFK' or 'Time Sprite Medium Intensity' or 'Time Sprite High Intensity' then
+
+				local d = r.failxp or 0.391e0.0325*alevel -- Finding the value of failure xp
+				local a = (r.successxp or d*10)   -- xp for successfully getting a material
+				local b = r.artefactxp or 100 * d  --xp for finding an artefact
+				local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
+
+				local e = r.hitpoints  --returns the hitpoints of one hotspot
+				local g = r.artefacts  --returns list of artefacts from one hotspot
+				local ggained = waterfiendchance * (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
+				local sp = SoilPrice(havg,r)  --gets average profits for collecting soil
+				if tonumber(autoscreener) == 1 then
+					sp = 0
 				end
 				
-				local materialsList = {}
-				local artefactsList = {}
-				local numMaterials = 0
-				local numArtefacts = 0
-				
-				for i,v in ipairs (r.materials) do
-					numMaterials = numMaterials + 1
+				local mph = GetNumArtefactMaterials(havg,r)
+				local chronoteX = GetChronoteValue(index)  --Gets average chronote value of one artefact from one hotspot
+				local totalPrice = TotalRestoringPrice(havg, r, precision)  --average price for restoring one artefact
+				local x = ggained * (totalPrice)  --calculating the average cost of all materials required for restoring artefacdts
+				local i = ggained * b * spritexpboost --i stands for total xp gained from finding artefacts
+				if tonumber(tea) > 0 then
+					i = i * 1.5
 				end
 				
-				for i,v in ipairs (r.artefacts) do
-					numArtefacts = numArtefacts + 1	
+				local j = ggained * c --j stands for total xp gained from restoring artefacts
+				local f = havg * s  --f stands for total raw materials gained, before fiend and furnace apply. drop an f in the chat
+				local q = ((n-1)+1)*f*a*spritexpboost  --q stands for total xp for finding mats with + without furnace perk. no furnace perk, remember n=1. cancels.
+				if tonumber(tea) > 0 then
+					q = q * 1.5
 				end
 				
-				for i,v in ipairs (r.materials) do
-					local endValue = ""
-					
-				
-					if i == numMaterials then
-						endValue = ""	
-					end
-					
-					table.insert(materialsList , "[[File:" .. v[1] .. ".png|" .. v[1] .. "|25x25px|link=" .. v[1] .. "]]" .. " [[" .. v[1] .. "]]" .. endValue)
+				local l = havg * z * d * spritexpboost --l stands for total failure xp. make sense? get that L? hahahaha... good one Pog
+				if tonumber(tea) > 0 then
+					l = l * 1.5
 				end
-				
-				for i,v in ipairs (r.artefacts) do
-					local endValue = ""
-					
-					if i == numArtefacts then
-						endValue = ""	
-					end
-					
-					table.insert(artefactsList,"[[File:" .. v[1] .. ".png|" .. v[1] .. "|25x25px|link=" .. v[1] .. "]]" .. " [[" .. v[1] .. "]]" .. endValue)
+
+				local mp = FindProfits(havg,r) --gets average profits for collecting materials
+
+				local MAFKavg = l + q + j + i  --M means raw total xp/h without xp boosts. everything that follows the variable is logical.
+				local TAFKavg = MAFKavg * gmo  --T means total xp/h including boosts.
+				if skillchompa.Level>mattock.Level then
+					TAFKavg = MAFKavg * gmo * skillchompa.Boost
 				end
+
+
+				local AFKProfit = ((1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f))*mp + (ggained * chronoteX) - chargeprice  + sp -  x   - (portablePrice*(1-(n-1))*f) - teaused - monocleused - (2000 * skillchompaprice) - waterfiendprice --TOTAL profit/loss calculation for the afk method!!! surprise surprise, arch makes you lose money. :P
+				mphValue = mph
+				Tavgxp = TAFKavg
+				Tprofit = AFKProfit
+				mValue = (1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f)
+				artefactNum = ggained
+				tRestoreCost = totalPrice
+
+				testingg = mphValue
+			end
 				
-				
-				local hotspot1 = "[[File:" .. index .. ".png|" .. index .. "|50x50px|link=" .. index .. "]]"
-				
-				if index == "Kyzaj champion's boudoir" then
-					nIndex = "Kyzaj champions boudoir"
-					hotspot1 = "[[File:" .. nIndex .. ".png|" .. nIndex .. "|50x50px|link=" .. nIndex .. "]]"
+			local materialsList = {}
+			local artefactsList = {}
+			local numMaterials = 0
+			local numArtefacts = 0
+
+			for i,v in ipairs (r.materials) do
+				numMaterials = numMaterials + 1
+			end
+
+			for i,v in ipairs (r.artefacts) do
+				numArtefacts = numArtefacts + 1	
+			end
+
+			for i,v in ipairs (r.materials) do
+				local endValue = ""
+
+
+				if i == numMaterials then
+					endValue = ""	
 				end
+
+				table.insert(materialsList , "[[File:" .. v[1] .. ".png|" .. v[1] .. "|25x25px|link=" .. v[1] .. "]]" .. " [[" .. v[1] .. "]]" .. endValue)
+			end
 				
-				local displayList = ("")
-				
-				for i,v in pairs (testingg) do
-					displayList = (displayList .. "[[File:" .. i .. ".png|" .. i .. "|25x25px|link=" .. i .. "]]"  .. " "  .. tostring(math.floor(v * mValue))	.. "<br>")
+			for i,v in ipairs (r.artefacts) do
+				local endValue = ""
+
+				if i == numArtefacts then
+					endValue = ""	
 				end
-				
-				local mValueColumn = ("")
-				local mValueColumnPrice = 0
-				
-				for i,v in pairs (testingg) do
-					mValueColumn = (mValueColumn .. "[[File:" .. i .. ".png|" .. i .. "|25x25px|link=" .. i .. "]]"  .. " "  .. commas(math.floor(gemw.price(i) * (v*mValue)))	.. "<br>")
-					mValueColumnPrice = mValueColumnPrice + gemw.price(i)*(v*mValue)
-				end
-				mValueColumnPrice = math.floor(mValueColumnPrice)
-				
-				mValueColumn = mValueColumn .. coins(mValueColumnPrice,"coins")
-				
-				
-				-- local start, end = string.find(index)
-				outputTableData[index] = {
-					["Level"] = r.level,
-					["Img"] = hotspot1,
-					["Materials"] = table.concat(materialsList, '<br>'),
-					["Artefacts"] = table.concat(artefactsList, '<br>'),
-					["XP/H"] = Tavgxp,
-					["Artefacts/H"] = tostring(artefactNum),
-					["Restore Cost"] = tRestoreCost,
-					["Materials/H"] = displayList,
-					["MaterialsValue"] = mValueColumn,
-					["GP/H"] = Tprofit,
-					["GP/XP"] = Tprofit / Tavgxp,	
-					["HoursToTarget"] = remaining / Tavgxp,
-				} 
+
+				table.insert(artefactsList,"[[File:" .. v[1] .. ".png|" .. v[1] .. "|25x25px|link=" .. v[1] .. "]]" .. " [[" .. v[1] .. "]]" .. endValue)
+			end
+
+			local hotspot1 = "[[File:" .. index .. ".png|" .. index .. "|50x50px|link=" .. index .. "]]"
+
+			if index == "Kyzaj champion's boudoir" then
+				nIndex = "Kyzaj champions boudoir"
+				hotspot1 = "[[File:" .. nIndex .. ".png|" .. nIndex .. "|50x50px|link=" .. nIndex .. "]]"
+			end
+
+			local displayList = ("")
+
+			for i,v in pairs (testingg) do
+				displayList = (displayList .. "[[File:" .. i .. ".png|" .. i .. "|25x25px|link=" .. i .. "]]"  .. " "  .. tostring(math.floor(v * mValue))	.. "<br>")
+			end
+
+			local mValueColumn = ("")
+			local mValueColumnPrice = 0
+
+			for i,v in pairs (testingg) do
+				mValueColumn = (mValueColumn .. "[[File:" .. i .. ".png|" .. i .. "|25x25px|link=" .. i .. "]]"  .. " "  .. commas(math.floor(gemw.price(i) * (v*mValue)))	.. "<br>")
+				mValueColumnPrice = mValueColumnPrice + gemw.price(i)*(v*mValue)
+			end
+			
+			mValueColumnPrice = math.floor(mValueColumnPrice)
+
+			mValueColumn = mValueColumn .. coins(mValueColumnPrice,"coins")
+
+
+			-- local start, end = string.find(index)
+			outputTableData[index] = {
+				["Level"] = r.level,
+				["Img"] = hotspot1,
+				["Materials"] = table.concat(materialsList, '<br>'),
+				["Artefacts"] = table.concat(artefactsList, '<br>'),
+				["XP/H"] = Tavgxp,
+				["Artefacts/H"] = tostring(artefactNum),
+				["Restore Cost"] = tRestoreCost,
+				["Materials/H"] = displayList,
+				["MaterialsValue"] = mValueColumn,
+				["GP/H"] = Tprofit,
+				["GP/XP"] = Tprofit / Tavgxp,	
+				["HoursToTarget"] = remaining / Tavgxp,
+			} 
 			
 			-----------------------------------------------------------------------------------------------------------------------------------------------------------
-		end
-		
-		
-					
+		end		
 	end
 	
 	local outputOrder = {}
