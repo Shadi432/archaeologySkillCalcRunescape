@@ -427,7 +427,7 @@ function p.main(frame)
 					
 					local d = r.failxp or 2 -- Finding the value of failure xp
 					local a = (r.successxp or d*10)   -- xp for successfully getting a material
-					local b = r.artefactxp or 100 * a  --xp for finding an artefact
+					local b = r.artefactxp or 100 * d  --xp for finding an artefact
 					local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
 					
 					local e = r.hitpoints  --returns the hitpoints of one hotspot
