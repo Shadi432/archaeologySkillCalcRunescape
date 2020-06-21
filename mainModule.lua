@@ -637,11 +637,10 @@ function p.lightCalculations(frame) -- Take these parameters and output calculat
 	local args = frame:getParent().args
 	local mattock = args.mattock
 	local method = args.method
-	local hotspotName = frame.args[1]
-	local r = data.hotspots[hotspotName]
+	local hotspotName = args.name
 	local crit_chance = data.critchance
 	local s = .21  --s is for successchance, finally using a letter related to the word ;p
-	local precision = mattock.Precision  --ironically this isn't precision.
+	local precision = data.mattocks[mattock].Precision  --ironically this isn't precision.
 	local chronoteprice = gemw.price("Chronotes") --price of chronotes for profit calc
 	local havg = 1300
 	local soilchance = .14  --current calculated percentage of gaining soil
@@ -656,15 +655,15 @@ function p.lightCalculations(frame) -- Take these parameters and output calculat
 	local gatheringOnly = 15000
 	local spriteprecision = 1.05
 	local spritexpboost = 1
-	if method == "Time Sprite Medium Intensity" or "Time Sprite High Intensity" then
+	if method == "Medium Intensity" or "High Intensity" then
 		spritexpboost = 1.2
 	end
-	if method == "Time Sprite Medium Intensity" then
+	if method == "Medium Intensity" then
 	    precision = precision*1.1
-	elseif method == "Time Sprite High Intensity" then
+	elseif method == "High Intensity" then
 		precision = precision*1.1*spriteprecision
 	end
-	if method == "Time Sprite High Intensity" then  --calculating success chance
+	if method == "High Intensity" then  --calculating success chance
 			s = (s+spritesuccesschance)
 	end
 	
@@ -676,78 +675,102 @@ function p.lightCalculations(frame) -- Take these parameters and output calculat
 	local mValue
 	local artefactNum = 0
 	local tRestoreCost
-	
+	local ls = 0
+	local qs = 0
+	local is = 123
+	local js = 0
+	local Tavgxps = 0
+	local Tprofits = 0
+	local extension = false
 	-- Table headers -- 
 	-- Just make it so that the values to be in the table are variables that are or "None", and whenever page updates correctly they'll show.
 	
-	--local displayTable = mw.html.create("table")
-	--displayTable:addClass("wikitable")
-	--local tableTitle = displayTable:tag("i")
-	--tableTitle:wikitext("[[File:" .. "Archaeology".. ".png|" .. "Archaeology" .. "|20x20px|link=" .. "Archaeology" .. "]]" ..  " Base XP per hour")
-	--[[
-	local row = displayTable:tag("tr")
-	row:tag("td")	:wikitext("Gathering only")
-	row:tag("td")	:wikitext("Restoration")
-	row:tag("td")	:wikitext("Total")
-	row:tag("td")	:wikitext("GP/XP")
-		
-	local row2 = displayTable:tag("tr")
-	row2:tag("td")	:wikitext(gatheringOnly) :css("table-layout", "fixed")
-	row2:tag("td")	:wikitext(restorationCost) :css("table-layout", "fixed")
-	row2:tag("td")	:wikitext(totalCalc) :css("table-layout", "fixed")
-	row2:tag("td")	:wikitext(coins(string.format("%.2f", ((gpPerXP * 10 + 0.5) / 10)),'coins')) :css("table-layout", "fixed")
-	]]--
-
-	if false then
-	
-		if args.method == 'AFK' or 'Time Sprite Medium Intensity' or 'Time Sprite High Intensity' then
-
-				local d = r.failxp or 1*10^(0.0000965*(r.level^2))-- Finding the value of failure xp
-				local a = (r.successxp or d*9.3)   -- xp for successfully getting a material
-				local b = r.artefactxp or 100 * d  --xp for finding an artefact
-				local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
-
-				local e = r.hitpoints  --returns the hitpoints of one hotspot
-				local g = r.artefacts  --returns list of artefacts from one hotspot
-				local ggained = (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
-				local sp = SoilPrice(havg,r)  --gets average profits for collecting soil
-				
-				local mph = GetNumArtefactMaterials(havg,r)
-				local chronoteX = GetChronoteValue(hotspotName)  --Gets average chronote value of one artefact from one hotspot
-				local totalPrice = TotalRestoringPrice(havg, r, precision)  --average price for restoring one artefact
-				local x = ggained * (totalPrice)  --calculating the average cost of all materials required for restoring artefacdts
-				local i = ggained * b * spritexpboost --i stands for total xp gained from finding artefacts
-				local j = ggained * c --j stands for total xp gained from restoring artefacts
-				
-				local f = havg * s  --f stands for total raw materials gained, before fiend and furnace apply. drop an f in the chat
-				local q = f*a*spritexpboost  --q stands for total xp for finding mats with + without furnace perk. no furnace perk, remember n=1. cancels.
-				
-				local l = havg * z * d * spritexpboost --l stands for total failure xp. make sense? get that L? hahahaha... good one Pog
-
-				local mp = FindProfits(havg,r) --gets average profits for collecting materials
-
-				local TAFKavg = l + q + j + i  --M means raw total xp/h without xp boosts. everything that follows the variable is logical.
-				
-
-
-				local AFKProfit = mp + (ggained * chronoteX) + sp -  x --TOTAL profit/loss calculation for the afk method!!! surprise surprise, arch makes you lose money. :P
-				mphValue = mph
-				Tavgxp = TAFKavg
-				Tprofit = AFKProfit
-				mValue = f
-				artefactNum = ggained
-				tRestoreCost = totalPrice
-				testingg = mphValue
-			end
-		
-		
-	
-		return displayTable
-	else
-		return hotspotName .. " " .. mattock .. " " .. method
+	if hotspotName:match("Bandos") then
+		hotspotName = "Bandos's sanctum debris"
+	elseif hotspotName:match("Howl") then
+		hotspotName = "Howl's workshop debris"
+	elseif hotspotName:match("Kyzaj champion's boudoir") then
+		hotspotName = "Kyzaj champion's boudoir"
+	elseif hotspotName:match("Yu") then
+		hotspotName = "Yu'biusk animal pen" 
 	end
+	local r = data.hotspots[hotspotName]
 	
-	return xpToReachLvl, timeToReachLvl -- (time in hours)
+	if (args.method == 'AFK' or args.method == 'Medium intensity' or args.method == 'High intensity') and r then
+
+		local d = r.failxp or 1*10^(0.0000965*(r.level^2))-- Finding the value of failure xp
+		local a = (r.successxp or d*9.3)   -- xp for successfully getting a material
+		local b = r.artefactxp or 100 * d  --xp for finding an artefact
+		local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
+
+		local e = r.hitpoints  --returns the hitpoints of one hotspot
+		local g = r.artefacts  --returns list of artefacts from one hotspot
+		local ggained = (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
+		local sp = SoilPrice(havg,r)  --gets average profits for collecting soil
+		
+		local mph = GetNumArtefactMaterials(havg,r)
+		local chronoteX = GetChronoteValue(hotspotName)  --Gets average chronote value of one artefact from one hotspot
+		local totalPrice = TotalRestoringPrice(havg, r, precision)  --average price for restoring one artefact
+		local x = ggained * (totalPrice)  --calculating the average cost of all materials required for restoring artefacdts
+		local i = ggained * b * spritexpboost --i stands for total xp gained from finding artefacts
+		local j = ggained * c --j stands for total xp gained from restoring artefacts
+		
+		local f = havg * s  --f stands for total raw materials gained, before fiend and furnace apply. drop an f in the chat
+		local q = f*a*spritexpboost  --q stands for total xp for finding mats with + without furnace perk. no furnace perk, remember n=1. cancels.
+		
+		local l = havg * z * d * spritexpboost --l stands for total failure xp. make sense? get that L? hahahaha... good one Pog
+
+		local mp = FindProfits(havg,r) --gets average profits for collecting materials
+
+
+
+		local TAFKavg = l + q + j + i  --M means raw total xp/h without xp boosts. everything that follows the variable is logical.
+		local AFKProfit = mp + (ggained * chronoteX) + sp -  x --TOTAL profit/loss calculation for the afk method!!! surprise surprise, arch makes you lose money. :P
+		Tavgxps = TAFKavg
+		Tprofits = AFKProfit
+		ls = l
+		qs = q
+		is = i
+		js = j
+	
+	elseif not r then
+		extension = true
+	end	
+	
+	local displayTable = mw.html.create("table")
+	displayTable:addClass("wikitable") :attr("cellpadding", "0") :attr("cellspacing","0") :attr("border", 0) :css("box-shadow", "none")
+	
+
+
+	local tableTitle = displayTable:tag("p")
+	tableTitle:wikitext("[[File:" .. "Archaeology".. ".png|" .. "Archaeology" .. "|20x20px|link=" .. "Archaeology" .. "]]" ..  " Base XP per hour") :css("font-weight", "bold")
+	
+	local row = displayTable:tag("tr")
+	row:tag("th")	:wikitext("Gathering only")	:attr("colspan", "2") :css("table-layout", "fixed") :done()
+	row:tag("td")	:wikitext(commas(math.floor(ls+qs+is)))  :attr("colspan", "2")	:css("table-layout", "fixed") :done()
+	local row2 = displayTable:tag("tr")
+	row2:tag("th")	:wikitext("Restoration") :attr("colspan", "2") :css("table-layout", "fixed")	:done()
+	row2:tag("td")	:wikitext(commas(math.floor(js))) 	:attr("colspan", "2") :css("table-layout", "fixed") :done()
+	local row3 = displayTable:tag("tr")
+	row3:tag("th")	:wikitext("Total") :attr("colspan", "2") :css("table-layout", "fixed")	:done()
+	row3:tag("td")	:wikitext(commas(math.floor(Tavgxps)))  :attr("colspan", "2") :css("table-layout", "fixed") :css("font-weight", "bold")	:done()
+	local row4 = displayTable:tag("tr")
+	row4:tag("th")	:wikitext("GP/XP")	:attr("colspan", "2") :css("table-layout", "fixed") :done()
+	row4:tag("td")	:wikitext(coins(string.format("%.2f", (((Tprofits/Tavgxps) * 10 + 0.5) / 10)),'coins')) :attr("colspan", "2") :css("table-layout", "fixed")	:done()
+
+	local row5 = displayTable:tag("tr") :css("table-layout", "fixed") :css("box-shadow", "none")
+	row5:tag("td"):wikitext("To see more information about this hotspot and Archaeology upgrades, visit [[Calculator:Archaeology Hotspot]]."):css("table-layout,", "fixed") :attr("colspan", "3")	:css("border-color", "white")	:css("font-size", "x-small") :css("box-shadow", "none")	:css("text-align", "center") :css("font-style", "italic")
+
+
+
+	
+	if xpToReach and timeToReachLvl then
+		return tostring(displayTable) .. tostring(xpToReachLvl) .. tostring(timeToReachLvl) 
+	elseif extension then
+		return tostring("Please make sure you have inputted the parameters correctly.")
+	else 
+		return tostring(displayTable)
+	end
 end
 
 
