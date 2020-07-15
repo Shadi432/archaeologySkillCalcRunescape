@@ -190,31 +190,52 @@ function p.main(frame)
 	local target_xp = tonumber(args.target_xp) or 0				-- Target Arcb xp
 	local mattock = data.mattocks[args.mattock]						-- Mattock
 	local methodtmp = args.method or 'AFK'
-	local method = data.method[methodtmp]						-- Method chosen
-	local gmo = data.pieces[args.pieces] or 0					-- outfit pieces unlocked
+	local method = data.method[methodtmp]	
+	local gmo = 1-- Method chosen
 	local outfittmp = args.outfit or 'None'
-	local outfit = data.outfit_m[outfittmp]						-- Outfit selected
+	local outfit = data.outfit_m[outfittmp]	
+	local piecetest = data.pieces or 'None'-- Outfit selected
 	local pieces = data.pieces[args.pieces]
+	if outfittmp ~= 'None' then
+		gmo = pieces
+	end-- outfit pieces unlocked
 	local fullmasteroutfit = 0
 	local avgRestore = 0
+	local activity = tonumber(args.activity)
+	local pylon = args.pylon or 0
+	local pylonboost = 1
+	local pylonprecision = 1
+		if tonumber(pylon) == 1 then
+			pylonboost = 1.1
+			pylonprecision = 1.05
+		end
 	
-	if tonumber(pieces) == 1.06 and outfittmp == "Master Archaeologists Outfit" then
+	if tonumber(pieces) == 1.06 and tostring(outfittmp) == "Master Archaeologists Outfit" then
 		fullmasteroutfit = 1
 	end
 	
-	local lvl20 = tonumber(args.lvl20) or 1						-- Mattock item level 20
-	local upgrade = data.upgrade[args.upgrade]
-	local honed = data.honed[args.honed]  or 0				-- Honed perk
-	honed = (100+(honed * lvl20))/100
-	local fortune = data.fortune[args.fortune]  or 0				-- Honed perk
-	fortune = (100+(fortune * lvl20))/100
-	local furnace = data.furnace[args.furnace] or 0				-- Furnace perk
-	furnace = (100+(furnace * lvl20))/100
 	local skillctmp = args.skillchompa or 'None'
 	local skillchompa = data.skillchompa[skillctmp]				-- Skillchompas
-	local masteroutfitbuff = data.masteroutfitbuff
+	local lvl20 = tonumber(args.lvl20) or 1						-- Mattock item level 20
+	local upgrade = data.upgrade[args.upgrade]
+	local honed = 0	
+	local honed2 = data.honed[args.honed] or 0
+	if skillchompa.Level <= mattock.Level then
+			honed = (100+(honed2 * lvl20))/100
+	end-- Honed perk
+	local fortune = 0
+	local fortune2 = data.fortune[args.fortune]  or 0	
+	if skillchompa.Level <= mattock.Level then
+			fortune = (100+(fortune2 * lvl20))/100
+	end
+	local furnace = 0
+	local furnace2 = data.furnace[args.furnace] or 0		
+	if skillchompa.Level <= mattock.Level then
+			furnace = (100+(furnace2 * lvl20))/100
+	end			-- Furnace perk
+	local masteroutfitbuff = 1.07
 	local crit_chance = data.critchance
-	local tick = .8
+	local tick = .6
 	local tea = args.tea or 0
 	local monocle = args.monocle or 0
 	local crit_bonus = 0
@@ -229,7 +250,7 @@ function p.main(frame)
 	local monocleused = 0  --is hi spec monocle buff used
 	local hmin = 1100  --minimum hits/h, theoretical maximum is 1500. 1100/1500 is 27% inactivity
 	local hmax = 1500
-	local havg = 1300
+	local havg = 15*activity -- since 1500 is theoretical maximum at 100% activity, 1500/100 = 15 hits per 1%. Now we multiply by activity % for true hit value.
 	local autoscreener = args.autoscreener or 0
 	local charge = (gemw.price("Divine charge"))/900
 	local portablePrice = 0
@@ -249,6 +270,9 @@ function p.main(frame)
 	local outputTableData = {}
 	local waterfiend = args.waterfiend or 0
 	local portable = data.portable[args.portable] or "None"
+	if portable == "None" then
+		havg = (15*activity)-((15*activity)/8)
+	end
 	local skillcape = args.skillcape or 0
 	local spritesuccesschance = .05
 	if tonumber(skillcape) == 1 then
@@ -301,7 +325,7 @@ function p.main(frame)
 	if remaining > 0 then has_target = true end					-- Has target true if remaing xp > 0
 	
 	local spriteprecision = (19 + (crit_bonus))/20
-	if skillcape == 1 then
+	if tonumber(skillcape) == 1 then
 		spriteprecision = (13.33 + (crit_bonus))/14
 	end
 	
@@ -312,51 +336,51 @@ function p.main(frame)
 										--jk. it is.
 	if methodtmp == "AFK" then -- Getting their precision values accurate based on their method and equips
 		if fullmasteroutfit == 1 and tonumber(monocle) == 1 then
-			precision = precision*masteroutfitbuff*1.2
+			precision = precision+((precision*masteroutfitbuff)-precision)+((precision*1.2)-precision)+((precision*pylonprecision)-precision)
 		elseif fullmasteroutfit == 1 then
-			precision = precision*masteroutfitbuff
+			precision = precision+((precision*masteroutfitbuff)-precision)+((precision*pylonprecision)-precision)
 		elseif tonumber(monocle) == 1 then
-			precision = precision*1.2
+			precision = precision+((precision*1.2)-precision)+((precision*pylonprecision)-precision)
 		end
 	elseif methodtmp == "Time Sprite Medium Intensity" then
 		if fullmasteroutfit == 1 and tonumber(monocle) == 1 then
-			precision = precision*masteroutfitbuff*1.2*1.1
+			precision = precision+((precision*masteroutfitbuff)-precision)+((precision*1.2)-precision)+((precision*pylonprecision)-precision)+((precision*1.1)-precision)
 		elseif fullmasteroutfit == 1 then
-			precision = precision*masteroutfitbuff*1.1
+			precision = precision+((precision*1.1)-precision)+((precision*masteroutfitbuff)-precision)+((precision*pylonprecision)-precision)
 		elseif tonumber(monocle) == 1 then
-			precision = precision*1.2*1.1
+			precision = precision+((precision*1.1)-precision)+((precision*1.2)-precision)+((precision*pylonprecision)-precision)
 		else
-			precision = precision*1.1
+			precision = precision+((precision*1.1)-precision)+((precision*pylonprecision)-precision)
 		end
 	elseif methodtmp == "Time Sprite High Intensity" then
 		if fullmasteroutfit == 1 and tonumber(monocle) == 1 then
-			precision = precision*masteroutfitbuff*1.1*1.2*spriteprecision
+			precision = precision+((precision*masteroutfitbuff)-precision)+((precision*1.1)-precision)+((precision*1.2)-precision)+((precision*spriteprecision)-precision)+((precision*pylonprecision)-precision)    
 		elseif fullmasteroutfit == 1 then
-			precision = precision*masteroutfitbuff*1.1*spriteprecision
+			precision = precision+((precision*masteroutfitbuff)-precision)+((precision*1.1)-precision)+((precision*spriteprecision)-precision)+((precision*pylonprecision)-precision)    
 		elseif tonumber(monocle) == 1 then
-			precision = precision*1.1*1.2*spriteprecision
+			precision = precision+((precision*1.1)-precision)+((precision*1.2)-precision)+((precision*spriteprecision)-precision)+((precision*pylonprecision)-precision)    
 		else
-			precision = precision*1.1*spriteprecision
+			precision = precision+((precision*1.1)-precision)+((precision*spriteprecision)-precision)+((precision*pylonprecision)-precision)+((precision*gmo)-precision) 
 		end
 	end
 	
 	if methodtmp == "Time Sprite High Intensity" then  --calculating success chance
 		if honed > 1 and fullmasteroutfit == 1 then
-			s = (s+spritesuccesschance) * honed * masteroutfitbuff
+			s = (s+spritesuccesschance) + (((s+spritesuccesschance)*honed)-(s+spritesuccesschance)) + (((s+spritesuccesschance)*masteroutfitbuff)-(s+spritesuccesschance))
 		elseif honed > 1 then
-			s = (s+spritesuccesschance) * honed
+			s = (s+spritesuccesschance) + (((s+spritesuccesschance)*honed)-(s+spritesuccesschance))
 		elseif fullmasteroutfit == 1 then
-			s = (s+spritesuccesschance) * masteroutfitbuff
+			s = (s+spritesuccesschance) + (((s+spritesuccesschance)*masteroutfitbuff)-(s+spritesuccesschance))
 		else
 			s = (s+spritesuccesschance)
 		end
 	else
 		if honed > 1 and fullmasteroutfit == 1 then
-			s = s * honed * masteroutfitbuff
+			s = s + (((s)*honed)-(s)) + (((s)*masteroutfitbuff)-(s))
 		elseif honed > 1 then
-			s = s * honed
+			s = s + (((s)*honed)-(s))
 		elseif fullmasteroutfit == 1 then
-			s = s * masteroutfitbuff
+			s = s + (((s)*masteroutfitbuff)-(s))
 		end
 	end
 	
@@ -405,8 +429,9 @@ function p.main(frame)
 	end
 	
 	r:tag("th")	:wikitext("GP/XP")	:attr("rowspan",2)	:done()
-	:tag("th")	:wikitext("Hours to Target")	:attr("rowspan", 2)	:done()
-	
+	if has_target == true then
+	r:tag("th")	:wikitext("Hours to Target")	:attr("rowspan", 2)	:done()
+	end
 
 	r:done()
 	
@@ -428,9 +453,16 @@ function p.main(frame)
 				local b = r.artefactxp or 100 * d  --xp for finding an artefact
 				local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
 
-				local e = r.hitpoints  --returns the hitpoints of one hotspot
+				local e = r.hitpoints
+				--[[if r.level >76 then
+					e = 13*(r.level) + 13590--]]
+			--[[	else--]]if r.level >19 --[[and r.level <=76--]] then
+					e = (17500/(1+(25*(1.035^(-2*(r.level-20))))))+3000 --dm boi#1703 for formula usage
+				end
+				
+				--returns the hitpoints of one hotspot
 				local g = r.artefacts  --returns list of artefacts from one hotspot
-				local ggained = waterfiendchance * (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
+				local ggained = (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
 				local sp = SoilPrice(havg,r)  --gets average profits for collecting soil
 				if tonumber(autoscreener) == 1 then
 					sp = 0
@@ -439,39 +471,48 @@ function p.main(frame)
 				local mph = GetNumArtefactMaterials(havg,r)
 				local chronoteX = GetChronoteValue(index)  --Gets average chronote value of one artefact from one hotspot
 				local totalPrice = TotalRestoringPrice(havg, r, precision)  --average price for restoring one artefact
-				local x = ggained * (totalPrice)  --calculating the average cost of all materials required for restoring artefacdts
-				local i = ggained * b * spritexpboost --i stands for total xp gained from finding artefacts
-				if tonumber(tea) > 0 then
+				local x = waterfiendchance * ggained * (totalPrice)  --calculating the average cost of all materials required for restoring artefacdts
+				local i = ggained * b * spritexpboost * pylonboost --i stands for total xp gained from finding artefacts
+				if skillchompa.Level>mattock.Level and tonumber(tea) > 0 then
+					i = ((i*skillchompa.Boost)-i) + ((i*1.5)-i) + i
+				elseif tonumber(tea) > 0 then
 					i = i * 1.5
+				elseif skillchompa.Level>mattock.Level then
+					i = i*skillchompa.Boost
 				end
 				
-				local j = ggained * c --j stands for total xp gained from restoring artefacts
+				local j = waterfiendchance * ggained * c --j stands for total xp gained from restoring artefacts
 				local f = havg * s  --f stands for total raw materials gained, before fiend and furnace apply. drop an f in the chat
-				local q = ((n-1)+1)*f*a*spritexpboost  --q stands for total xp for finding mats with + without furnace perk. no furnace perk, remember n=1. cancels.
-				if tonumber(tea) > 0 then
+				local q = ((n-1)+1)*f*a*spritexpboost*pylonboost  --q stands for total xp for finding mats with + without furnace perk. no furnace perk, remember n=1. cancels.
+				if skillchompa.Level>mattock.Level and tonumber(tea) > 0 then
+					q = ((q*skillchompa.Boost)-q) + ((q*1.5)-q) + q
+				elseif tonumber(tea) > 0 then
 					q = q * 1.5
+				elseif skillchompa.Level>mattock.Level then
+					q = q*skillchompa.Boost
 				end
 				
-				local l = havg * z * d * spritexpboost --l stands for total failure xp. make sense? get that L? hahahaha... good one Pog
-				if tonumber(tea) > 0 then
+				local l = havg * z * d * spritexpboost*pylonboost --l stands for total failure xp. make sense? get that L? hahahaha... good one Pog
+				
+				if skillchompa.Level>mattock.Level and tonumber(tea) > 0 then
+					l = ((l*skillchompa.Boost)-l) + ((l*1.5)-l) + l
+				elseif tonumber(tea) > 0 then
 					l = l * 1.5
+				elseif skillchompa.Level>mattock.Level then
+					l = l*skillchompa.Boost
 				end
 
 				local mp = FindProfits(havg,r) --gets average profits for collecting materials
 
 				local MAFKavg = l + q + j + i  --M means raw total xp/h without xp boosts. everything that follows the variable is logical.
 				local TAFKavg = MAFKavg * gmo  --T means total xp/h including boosts.
-				if skillchompa.Level>mattock.Level then
-					TAFKavg = MAFKavg * gmo * skillchompa.Boost
-				end
 
-
-				local AFKProfit = ((1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f))*mp + (ggained * chronoteX) - chargeprice  + sp -  x   - (portablePrice*(1-(n-1))*f) - teaused - monocleused - (2000 * skillchompaprice) - waterfiendprice --TOTAL profit/loss calculation for the afk method!!! surprise surprise, arch makes you lose money. :P
+				local AFKProfit = ((1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f))*mp + (waterfiendchance * ggained * chronoteX) - chargeprice  + sp -  x   - (portablePrice*(1-(n-1))*f) - teaused - monocleused - (2000 * skillchompaprice) - waterfiendprice --TOTAL profit/loss calculation for the afk method!!! surprise surprise, arch makes you lose money. :P
 				mphValue = mph
 				Tavgxp = TAFKavg
 				Tprofit = AFKProfit
 				mValue = (1-(n-1))*f + (waterfiendchance*f - f) + (f*fortune - f)
-				artefactNum = ggained
+				artefactNum = waterfiendchance * ggained
 				tRestoreCost = totalPrice
 
 				testingg = mphValue
@@ -538,22 +579,41 @@ function p.main(frame)
 
 
 			-- local start, end = string.find(index)
-			outputTableData[index] = {
-				["Level"] = r.level,
-				["Img"] = hotspot1,
-				["Materials"] = table.concat(materialsList, '<br>'),
-				["Artefacts"] = table.concat(artefactsList, '<br>'),
-				["XP/H"] = Tavgxp,
-				["Artefacts/H"] = tostring(artefactNum),
-				["Restore Cost"] = tRestoreCost,
-				["Materials/H"] = displayList,
-				["MaterialsValue"] = mValueColumn,
-				["GP/H"] = Tprofit,
-				["GP/XP"] = Tprofit / Tavgxp,	
-				["HoursToTarget"] = remaining / Tavgxp,
-			} 
-			
-		end		
+			if pylon == "1" then
+				if r.soil == "Ancient gravel" and index ~= "Venator remains" then
+					outputTableData[index] = {
+						["Level"] = r.level,
+						["Img"] = hotspot1,
+						["Materials"] = table.concat(materialsList, '<br>'),
+						["Artefacts"] = table.concat(artefactsList, '<br>'),
+						["XP/H"] = Tavgxp,
+						["Artefacts/H"] = tostring(artefactNum),
+						["Restore Cost"] = tRestoreCost,
+						["Materials/H"] = displayList,
+						["MaterialsValue"] = mValueColumn,
+						["GP/H"] = Tprofit,
+						["GP/XP"] = Tprofit / Tavgxp,	
+						["HoursToTarget"] = remaining / Tavgxp,
+					}	
+				end
+
+			elseif pylon == "0" then
+				outputTableData[index] = {
+					["Level"] = r.level,
+					["Img"] = hotspot1,
+					["Materials"] = table.concat(materialsList, '<br>'),
+					["Artefacts"] = table.concat(artefactsList, '<br>'),
+					["XP/H"] = Tavgxp,
+					["Artefacts/H"] = tostring(artefactNum),
+					["Restore Cost"] = tRestoreCost,
+					["Materials/H"] = displayList,
+					["MaterialsValue"] = mValueColumn,
+					["GP/H"] = Tprofit,
+					["GP/XP"] = Tprofit / Tavgxp,	
+					["HoursToTarget"] = remaining / Tavgxp,
+				}
+			end
+		end	
 	end
 	
 	local outputOrder = {}
@@ -608,7 +668,9 @@ function p.main(frame)
 			:tag("td")	:wikitext(coins(string.format("%.1f", math.floor(math.floor(v["GP/H"] * 10 + 0.5) / 10)),'coins')) :css('text-align', 'center')	:done()
 		end
 		row:tag("td")	:wikitext(coins(string.format("%.2f", ((v["GP/XP"] * 10 + 0.5) / 10)),'coins'))	:css("text-align", "center")	:done()
-		:tag("td")	:wikitext("[[File:" .. "Hourglass".. ".png|" .. "Hourglass" .. "|20x20px|link=" .. "Hourglass" .. "]]"  .. " " .. string.format("%.0f", v["HoursToTarget"] * 10 + 0.5) / 10)	:css("text-align", "center") :css("table-layout", "fixed")	:done()
+		if has_target == true then
+		row:tag("td")	:wikitext("[[File:" .. "Hourglass".. ".png|" .. "Hourglass" .. "|20x20px|link=" .. "Hourglass" .. "]]"  .. " " .. string.format("%.0f", v["HoursToTarget"] * 10 + 0.5) / 10)	:css("text-align", "center") :css("table-layout", "fixed")	:done()
+		end
 	end
 	
 
@@ -622,7 +684,7 @@ function p.main(frame)
 	end
 	
 	
-	return tostring(msg)..tostring(t) -- Final return of this function, should tell them the amount of xp they need to get from certain level to certain level.
+	return tostring(msg)..tostring(t)  -- Final return of this function, should tell them the amount of xp they need to get from certain level to certain level.
 end
 
 -- [LIGHT CALCULATIONS FUNCTION BELOW] --
@@ -655,15 +717,15 @@ function p.lightCalculations(frame) -- Take these parameters and output calculat
 	local gatheringOnly = 15000
 	local spriteprecision = 1.05
 	local spritexpboost = 1
-	if method == "Medium Intensity" or "High Intensity" then
+	if method == "Medium Intensity" or "High intensity" then
 		spritexpboost = 1.2
 	end
-	if method == "Medium Intensity" then
+	if method == "Medium intensity" then
 	    precision = precision*1.1
-	elseif method == "High Intensity" then
+	elseif method == "High intensity" then
 		precision = precision*1.1*spriteprecision
 	end
-	if method == "High Intensity" then  --calculating success chance
+	if method == "High intensity" then  --calculating success chance
 			s = (s+spritesuccesschance)
 	end
 	
@@ -689,9 +751,9 @@ function p.lightCalculations(frame) -- Take these parameters and output calculat
 		hotspotName = "Bandos's sanctum debris"
 	elseif hotspotName:match("Howl") then
 		hotspotName = "Howl's workshop debris"
-	elseif hotspotName:match("Kyzaj champion's boudoir") then
+	elseif hotspotName:match("Kyzaj") then
 		hotspotName = "Kyzaj champion's boudoir"
-	elseif hotspotName:match("Yu") then
+	elseif hotspotName:match("Yubiusk") then
 		hotspotName = "Yu'biusk animal pen" 
 	end
 	local r = data.hotspots[hotspotName]
@@ -704,6 +766,9 @@ function p.lightCalculations(frame) -- Take these parameters and output calculat
 		local c = artefactXP(r.artefacts[1][1])  --returns function, finds average experience of restoring one artefact
 
 		local e = r.hitpoints  --returns the hitpoints of one hotspot
+				if r.level >19 --[[and r.level <=76--]] then
+					e = (17500/(1+(25*(1.035^(-2*(r.level-20))))))+3000 --dm boi#1703 for formula usage
+				end
 		local g = r.artefacts  --returns list of artefacts from one hotspot
 		local ggained = (havg)/(e/precision)  --total avg artefacts gained per hour, calculated by taking hitpoints / precision (which is damage dealt)
 		local sp = SoilPrice(havg,r)  --gets average profits for collecting soil
